@@ -307,7 +307,7 @@ views:
                   service: easee.action_command
                   service_data:
                     device_id: 55a98b1ed912361eaad77b77f8d509cb
-                    action_command: start
+                    action_command: resume
                 styles:
                   card:
                     - height: 96px
@@ -337,7 +337,7 @@ views:
                   service: easee.action_command
                   service_data:
                     device_id: 55a98b1ed912361eaad77b77f8d509cb
-                    action_command: stop
+                    action_command: pause
                 styles:
                   card:
                     - height: 96px
