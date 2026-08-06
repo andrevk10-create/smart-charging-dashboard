@@ -303,9 +303,9 @@ views:
                 show_label: true
                 icon: mdi:play
                 tap_action:
-                  action: perform-action
-                  perform_action: easee.action_command
-                  data:
+                  action: call-service
+                  service: easee.action_command
+                  service_data:
                     device_id: 55a98b1ed912361eaad77b77f8d509cb
                     action_command: start
                 styles:
@@ -333,9 +333,9 @@ views:
                 show_label: true
                 icon: mdi:stop
                 tap_action:
-                  action: perform-action
-                  perform_action: easee.action_command
-                  data:
+                  action: call-service
+                  service: easee.action_command
+                  service_data:
                     device_id: 55a98b1ed912361eaad77b77f8d509cb
                     action_command: stop
                 styles:
@@ -401,9 +401,9 @@ views:
                 show_label: true
                 icon: mdi:car-door-lock
                 tap_action:
-                  action: perform-action
-                  perform_action: lock.lock
-                  target:
+                  action: call-service
+                  service: lock.lock
+                  service_data:
                     entity_id: lock.audi_e_tron_sportback_door_lock
                 styles:
                   card:
@@ -429,9 +429,9 @@ views:
                 tap_action:
                   action: none
                 hold_action:
-                  action: perform-action
-                  perform_action: lock.unlock
-                  target:
+                  action: call-service
+                  service: lock.unlock
+                  service_data:
                     entity_id: lock.audi_e_tron_sportback_door_lock
                 styles:
                   card:
@@ -455,8 +455,8 @@ views:
                 show_label: true
                 icon: mdi:cloud-refresh
                 tap_action:
-                  action: perform-action
-                  perform_action: audiconnect.refresh_cloud_data
+                  action: call-service
+                  service: audiconnect.refresh_cloud_data
                 styles:
                   card:
                     - height: 88px
