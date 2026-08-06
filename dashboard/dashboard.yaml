@@ -5,9 +5,14 @@ views:
     icon: mdi:car-electric
     type: sections
     max_columns: 3
+    dense_section_placement: true
+    background: "linear-gradient(145deg, #07090c 0%, #0d1116 52%, #080a0d 100%)"
+
     sections:
+      ##########################################################################
+      # AUDI / SOC
+      ##########################################################################
       - type: grid
-        column_span: 2
         cards:
           - type: custom:button-card
             entity: sensor.audi_e_tron_sportback_state_of_charge
@@ -15,175 +20,230 @@ views:
             show_state: false
             show_icon: false
             custom_fields:
-              header: |
-                [[[
-                  const target = states['sensor.audi_e_tron_sportback_target_state_of_charge']?.state ?? '—';
-                  return `<div class="hero-header"><div><div class="eyebrow">AUDI E-TRON</div><div class="hero-title">Slim laden</div></div><ha-icon icon="mdi:car-electric" class="hero-icon"></ha-icon></div><div class="soc-row"><div class="soc">${entity.state}<span>%</span></div><div class="target">Doel ${target}%</div></div>`;
-                ]]]
-              bar: |
+              content: |
                 [[[
                   const soc = Math.max(0, Math.min(100, Number(entity.state) || 0));
-                  const color = soc < 25 ? '#ef5350' : soc < 60 ? '#ffb300' : '#43a047';
-                  return `<div class="battery-track"><div class="battery-fill" style="width:${soc}%;background:${color}"></div></div>`;
-                ]]]
-              status: |
-                [[[
+                  const target = states['sensor.audi_e_tron_sportback_target_state_of_charge']?.state ?? '—';
                   const raw = states['sensor.ev_smart_charging_status']?.state ?? 'unknown';
-                  const labels = {
+
+                  const statusText = {
                     charging: 'Bezig met laden',
                     waiting_for_charging_to_begin: 'Wachten op laadmoment',
                     no_charging_planned: 'Geen laden gepland',
                     charging_completed: 'Laden voltooid',
                     error: 'Storing'
-                  };
-                  const label = labels[raw] ?? raw.replaceAll('_',' ');
-                  const cls = raw === 'charging' ? 'ok' : raw === 'waiting_for_charging_to_begin' ? 'wait' : raw === 'error' ? 'bad' : 'idle';
-                  return `<div class="status-pill ${cls}"><span></span>${label}</div>`;
+                  }[raw] ?? raw.replaceAll('_', ' ');
+
+                  const accent = raw === 'charging'
+                    ? '#35c759'
+                    : raw === 'waiting_for_charging_to_begin'
+                      ? '#ffb000'
+                      : raw === 'error'
+                        ? '#ff453a'
+                        : '#8e98a4';
+
+                  const battery = soc < 25 ? '#ff453a' : soc < 60 ? '#ffb000' : '#35c759';
+
+                  return `
+                    <div class="hero-head">
+                      <div>
+                        <div class="eyebrow">AUDI E-TRON</div>
+                        <div class="hero-title">Slim laden</div>
+                      </div>
+                      <ha-icon icon="mdi:car-electric" class="car-icon"></ha-icon>
+                    </div>
+
+                    <div class="soc-row">
+                      <div class="soc">${soc}<span>%</span></div>
+                      <div class="target">Doel ${target}%</div>
+                    </div>
+
+                    <div class="battery-track">
+                      <div class="battery-fill" style="width:${soc}%;background:${battery}"></div>
+                    </div>
+
+                    <div class="status-pill">
+                      <span style="background:${accent};box-shadow:0 0 12px ${accent}"></span>
+                      ${statusText}
+                    </div>
+                  `;
                 ]]]
             styles:
               grid:
-                - grid-template-areas: '"header" "bar" "status"'
+                - grid-template-areas: '"content"'
                 - grid-template-columns: 1fr
-                - grid-template-rows: min-content min-content min-content
               card:
-                - padding: 28px
-                - border-radius: 28px
-                - background: linear-gradient(145deg, rgba(28,31,36,.98), rgba(12,14,18,.98))
+                - min-height: 290px
+                - padding: 26px
+                - border-radius: 26px
+                - background: linear-gradient(145deg, #171b20 0%, #0d1014 100%)
                 - border: 1px solid rgba(255,255,255,.08)
-                - box-shadow: 0 18px 45px rgba(0,0,0,.28)
+                - box-shadow: 0 18px 42px rgba(0,0,0,.34)
                 - overflow: hidden
               custom_fields:
-                header:
+                content:
                   - width: 100%
-                bar:
-                  - margin-top: 22px
-                status:
-                  - margin-top: 22px
             extra_styles: |
-              .hero-header{display:flex;align-items:center;justify-content:space-between;color:#fff}.eyebrow{font-size:12px;letter-spacing:.18em;color:#9da3ad}.hero-title{font-size:28px;font-weight:700;margin-top:3px}.hero-icon{--mdc-icon-size:48px;color:#d6d9de}.soc-row{display:flex;align-items:flex-end;justify-content:space-between;margin-top:24px;color:#fff}.soc{font-size:64px;font-weight:700;line-height:.9}.soc span{font-size:26px;margin-left:4px;color:#b7bcc5}.target{font-size:16px;color:#b7bcc5;padding-bottom:5px}.battery-track{height:14px;border-radius:999px;background:rgba(255,255,255,.10);overflow:hidden}.battery-fill{height:100%;border-radius:999px;transition:width .8s ease}.status-pill{display:inline-flex;align-items:center;gap:9px;padding:9px 13px;border-radius:999px;font-size:14px;color:#d9dde4;background:rgba(255,255,255,.07)}.status-pill span{width:9px;height:9px;border-radius:50%;background:#9097a1}.status-pill.ok span{background:#4caf50;box-shadow:0 0 12px #4caf50}.status-pill.wait span{background:#ffb300;box-shadow:0 0 12px #ffb300}.status-pill.bad span{background:#ef5350;box-shadow:0 0 12px #ef5350}
+              .hero-head{display:flex;align-items:flex-start;justify-content:space-between;color:#f5f7fa}
+              .eyebrow{font-size:12px;letter-spacing:.18em;color:#9ca6b2}
+              .hero-title{font-size:27px;font-weight:700;margin-top:5px}
+              .car-icon{--mdc-icon-size:46px;color:#d6dbe1}
+              .soc-row{display:flex;align-items:flex-end;justify-content:space-between;margin-top:27px;color:#f7f9fb}
+              .soc{font-size:68px;font-weight:700;line-height:.88}
+              .soc span{font-size:27px;margin-left:4px;color:#c1c8d0}
+              .target{font-size:16px;color:#c1c8d0;padding-bottom:4px}
+              .battery-track{height:14px;margin-top:24px;border-radius:999px;background:#292e35;overflow:hidden}
+              .battery-fill{height:100%;border-radius:999px;transition:width .8s ease}
+              .status-pill{display:table;margin:22px auto 0;padding:9px 15px;border-radius:999px;background:#20242a;color:#e5e9ee;font-size:14px}
+              .status-pill span{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:9px}
 
-          - type: custom:mushroom-template-card
+      ##########################################################################
+      # PLANNING
+      ##########################################################################
+      - type: grid
+        cards:
+          - type: custom:button-card
             entity: sensor.ev_smart_charging_status
-            primary: Laadregeling
-            secondary: >-
-              {% set s = states('sensor.ev_smart_charging_status') %}
-              {% if s == 'charging' %}
-                Bezig met laden
-              {% elif s == 'waiting_for_charging_to_begin' %}
-                Wachten op het berekende laadmoment
-              {% elif s == 'no_charging_planned' %}
-                Geen laden gepland
-              {% elif s == 'charging_completed' %}
-                Laden voltooid
-              {% else %}
-                {{ s | replace('_', ' ') }}
-              {% endif %}
-            icon: mdi:brain
-            icon_color: >-
-              {% set s = states('sensor.ev_smart_charging_status') %}
-              {% if s == 'charging' %}green{% elif s == 'waiting_for_charging_to_begin' %}amber{% elif s == 'error' %}red{% else %}grey{% endif %}
-            multiline_secondary: true
-            fill_container: true
+            show_name: false
+            show_state: false
+            show_icon: false
+            custom_fields:
+              content: |
+                [[[
+                  const complete = states['select.ev_smart_charging_charge_completion_time']?.state ?? '—';
+                  const smartOn = states['switch.ev_smart_charging_smart_charging_activated']?.state === 'on';
+                  const current = Number(states['sensor.ev_smart_charging_price']?.state);
+                  const next = Number(states['sensor.nord_pool_nl_volgende_prijs']?.state);
+                  const money = (n) => Number.isFinite(n) ? `€ ${n.toFixed(5)} / kWh` : 'Niet beschikbaar';
+
+                  return `
+                    <div class="panel-title">PLANNING</div>
+                    <div class="panel-subtitle">EV SMART CHARGING</div>
+
+                    <div class="data-row">
+                      <ha-icon icon="mdi:clock-check-outline" style="color:#2f8cff"></ha-icon>
+                      <span>Klaar om</span><b>${complete}</b>
+                    </div>
+                    <div class="data-row">
+                      <ha-icon icon="mdi:ev-station" style="color:${smartOn ? '#35c759' : '#7f8994'}"></ha-icon>
+                      <span>Slim laden</span><b style="color:${smartOn ? '#35c759' : '#aeb5bd'}">${smartOn ? 'Ingeschakeld' : 'Uitgeschakeld'}</b>
+                    </div>
+                    <div class="data-row">
+                      <ha-icon icon="mdi:currency-eur" style="color:#35c759"></ha-icon>
+                      <span>Huidige prijs</span><b>${money(current)}</b>
+                    </div>
+                    <div class="data-row">
+                      <ha-icon icon="mdi:clock-fast" style="color:#2f8cff"></ha-icon>
+                      <span>Volgende prijs</span><b>${money(next)}</b>
+                    </div>
+                  `;
+                ]]]
             tap_action:
               action: more-info
-            card_mod:
-              style: |
-                ha-card {
-                  border-radius: 24px;
-                  padding: 10px;
-                  background: rgba(25,28,33,.94);
-                  border: 1px solid rgba(255,255,255,.07);
-                  box-shadow: none;
-                }
+            styles:
+              grid:
+                - grid-template-areas: '"content"'
+                - grid-template-columns: 1fr
+              card:
+                - min-height: 290px
+                - padding: 25px
+                - border-radius: 26px
+                - background: linear-gradient(145deg, #151a1f 0%, #0c0f13 100%)
+                - border: 1px solid rgba(255,255,255,.08)
+                - box-shadow: 0 18px 42px rgba(0,0,0,.30)
+              custom_fields:
+                content:
+                  - width: 100%
+            extra_styles: |
+              .panel-title{font-size:17px;font-weight:700;letter-spacing:.08em;color:#f1f4f7}
+              .panel-subtitle{font-size:13px;letter-spacing:.08em;color:#8f99a5;margin-top:5px;margin-bottom:18px}
+              .data-row{height:48px;display:grid;grid-template-columns:30px 1fr auto;align-items:center;padding:0 13px;margin-top:9px;border-radius:14px;background:#171b20;border:1px solid rgba(255,255,255,.06);color:#edf1f5}
+              .data-row ha-icon{--mdc-icon-size:23px}
+              .data-row span{font-size:15px}
+              .data-row b{font-size:14px;font-weight:600;color:#e8ecf0}
 
+      ##########################################################################
+      # LAADSESSIE
+      ##########################################################################
       - type: grid
         cards:
-          - type: custom:mushroom-title-card
-            title: Planning
-            subtitle: EV Smart Charging
-          - type: custom:mushroom-template-card
-            entity: select.ev_smart_charging_charge_completion_time
-            primary: Klaar om
-            secondary: "{{ states('select.ev_smart_charging_charge_completion_time') }}"
-            icon: mdi:clock-check-outline
-            icon_color: blue
-            tap_action:
-              action: more-info
-            card_mod:
-              style: |
-                ha-card { border-radius: 22px; background: rgba(25,28,33,.94); border: 1px solid rgba(255,255,255,.07); }
-          - type: custom:mushroom-template-card
-            entity: switch.ev_smart_charging_smart_charging_activated
-            primary: Slim laden
-            secondary: "{{ 'Ingeschakeld' if is_state('switch.ev_smart_charging_smart_charging_activated','on') else 'Uitgeschakeld' }}"
-            icon: mdi:ev-station
-            icon_color: "{{ 'green' if is_state('switch.ev_smart_charging_smart_charging_activated','on') else 'grey' }}"
-            tap_action:
-              action: toggle
-            card_mod:
-              style: |
-                ha-card { border-radius: 22px; background: rgba(25,28,33,.94); border: 1px solid rgba(255,255,255,.07); }
-          - type: custom:mushroom-template-card
-            entity: sensor.ev_smart_charging_price
-            primary: Huidige prijs
-            secondary: "€ {{ states('sensor.ev_smart_charging_price') }} / kWh"
-            icon: mdi:currency-eur
-            icon_color: teal
-            card_mod:
-              style: |
-                ha-card { border-radius: 22px; background: rgba(25,28,33,.94); border: 1px solid rgba(255,255,255,.07); }
-          - type: custom:mushroom-template-card
-            entity: sensor.nord_pool_nl_volgende_prijs
-            primary: Volgende prijs
-            secondary: "€ {{ states('sensor.nord_pool_nl_volgende_prijs') }} / kWh"
-            icon: mdi:clock-fast
-            icon_color: cyan
-            card_mod:
-              style: |
-                ha-card { border-radius: 22px; background: rgba(25,28,33,.94); border: 1px solid rgba(255,255,255,.07); }
+          - type: custom:button-card
+            entity: sensor.links_sessie_energie
+            show_name: false
+            show_state: false
+            show_icon: false
+            custom_fields:
+              content: |
+                [[[
+                  const value = (id, digits = 2) => {
+                    const raw = states[id]?.state;
+                    const number = Number(raw);
+                    return Number.isFinite(number)
+                      ? number.toLocaleString('nl-NL', {maximumFractionDigits: digits})
+                      : (raw ?? '—');
+                  };
 
+                  const onlineRaw = (states['sensor.links_online']?.state ?? 'onbekend').toLowerCase();
+                  const online = ['verbonden','online','on','true'].includes(onlineRaw);
+
+                  return `
+                    <div class="panel-title">LAADSESSIE</div>
+                    <div class="panel-subtitle">EASEE</div>
+
+                    <div class="data-row">
+                      <ha-icon icon="mdi:lightning-bolt" style="color:#35c759"></ha-icon>
+                      <span>Energie</span><b>${value('sensor.links_sessie_energie')} kWh</b>
+                    </div>
+                    <div class="data-row">
+                      <ha-icon icon="mdi:current-ac" style="color:#ffb000"></ha-icon>
+                      <span>Laadstroom</span><b>${value('sensor.links_laadstroom', 2)} A</b>
+                    </div>
+                    <div class="data-row">
+                      <ha-icon icon="mdi:sine-wave" style="color:#2f8cff"></ha-icon>
+                      <span>Spanning</span><b>${value('sensor.links_voltage', 1)} V</b>
+                    </div>
+                    <div class="data-row">
+                      <ha-icon icon="mdi:access-point" style="color:${online ? '#35c759' : '#ff453a'}"></ha-icon>
+                      <span>Verbinding</span><b>${states['sensor.links_online']?.state ?? 'Onbekend'}</b>
+                    </div>
+                  `;
+                ]]]
+            styles:
+              grid:
+                - grid-template-areas: '"content"'
+                - grid-template-columns: 1fr
+              card:
+                - min-height: 290px
+                - padding: 25px
+                - border-radius: 26px
+                - background: linear-gradient(145deg, #151a1f 0%, #0c0f13 100%)
+                - border: 1px solid rgba(255,255,255,.08)
+                - box-shadow: 0 18px 42px rgba(0,0,0,.30)
+              custom_fields:
+                content:
+                  - width: 100%
+            extra_styles: |
+              .panel-title{font-size:17px;font-weight:700;letter-spacing:.08em;color:#f1f4f7}
+              .panel-subtitle{font-size:13px;letter-spacing:.08em;color:#8f99a5;margin-top:5px;margin-bottom:18px}
+              .data-row{height:48px;display:grid;grid-template-columns:30px 1fr auto;align-items:center;padding:0 13px;margin-top:9px;border-radius:14px;background:#171b20;border:1px solid rgba(255,255,255,.06);color:#edf1f5}
+              .data-row ha-icon{--mdc-icon-size:23px}
+              .data-row span{font-size:15px}
+              .data-row b{font-size:14px;font-weight:600;color:#e8ecf0}
+
+      ##########################################################################
+      # BEDIENING
+      ##########################################################################
       - type: grid
-        column_span: 2
+        column_span: 3
         cards:
-          - type: custom:mushroom-title-card
-            title: Laadsessie
-            subtitle: Easee livegegevens
-          - type: horizontal-stack
-            cards:
-              - type: custom:mushroom-template-card
-                entity: sensor.links_sessie_energie
-                primary: Energie
-                secondary: "{{ states('sensor.links_sessie_energie') }} kWh"
-                icon: mdi:lightning-bolt-circle
-                icon_color: green
-                layout: vertical
-                card_mod:
-                  style: |
-                    ha-card { border-radius: 22px; background: rgba(25,28,33,.94); border: 1px solid rgba(255,255,255,.07); }
-              - type: custom:mushroom-template-card
-                entity: sensor.links_laadstroom
-                primary: Laadstroom
-                secondary: "{{ states('sensor.links_laadstroom') }} A"
-                icon: mdi:current-ac
-                icon_color: amber
-                layout: vertical
-                card_mod:
-                  style: |
-                    ha-card { border-radius: 22px; background: rgba(25,28,33,.94); border: 1px solid rgba(255,255,255,.07); }
-              - type: custom:mushroom-template-card
-                entity: sensor.links_voltage
-                primary: Spanning
-                secondary: "{{ states('sensor.links_voltage') }} V"
-                icon: mdi:sine-wave
-                icon_color: blue
-                layout: vertical
-                card_mod:
-                  style: |
-                    ha-card { border-radius: 22px; background: rgba(25,28,33,.94); border: 1px solid rgba(255,255,255,.07); }
-          - type: horizontal-stack
+          - type: grid
+            columns: 3
+            square: false
             cards:
               - type: custom:button-card
                 name: Nu laden
+                label: Start direct
+                show_label: true
                 icon: mdi:play
                 tap_action:
                   action: perform-action
@@ -192,19 +252,26 @@ views:
                     entity_id: button.ev_smart_charging_manually_start_charging
                 styles:
                   card:
-                    - height: 92px
+                    - height: 112px
+                    - padding: 18px
                     - border-radius: 24px
-                    - background: linear-gradient(135deg, #218739, #145423)
-                    - border: 1px solid rgba(255,255,255,.10)
-                    - color: white
-                    - box-shadow: 0 14px 30px rgba(20,84,35,.25)
+                    - background: linear-gradient(145deg, #151a1f, #0c0f13)
+                    - border: 1px solid rgba(53,199,89,.28)
+                    - box-shadow: 0 14px 32px rgba(0,0,0,.28)
                   icon:
-                    - width: 32px
+                    - width: 35px
+                    - color: '#35c759'
                   name:
-                    - font-size: 17px
-                    - font-weight: 600
+                    - color: '#f2f5f8'
+                    - font-size: 16px
+                    - font-weight: 700
+                  label:
+                    - color: '#87919d'
+                    - font-size: 12px
               - type: custom:button-card
-                name: Stoppen
+                name: Stop laden
+                label: Stop direct
+                show_label: true
                 icon: mdi:stop
                 tap_action:
                   action: perform-action
@@ -213,97 +280,127 @@ views:
                     entity_id: button.ev_smart_charging_manually_stop_charging
                 styles:
                   card:
-                    - height: 92px
+                    - height: 112px
+                    - padding: 18px
                     - border-radius: 24px
-                    - background: linear-gradient(135deg, #a92d2d, #651a1a)
-                    - border: 1px solid rgba(255,255,255,.10)
-                    - color: white
-                    - box-shadow: 0 14px 30px rgba(101,26,26,.25)
+                    - background: linear-gradient(145deg, #151a1f, #0c0f13)
+                    - border: 1px solid rgba(255,69,58,.28)
+                    - box-shadow: 0 14px 32px rgba(0,0,0,.28)
                   icon:
-                    - width: 32px
+                    - width: 35px
+                    - color: '#ff453a'
                   name:
-                    - font-size: 17px
-                    - font-weight: 600
+                    - color: '#f2f5f8'
+                    - font-size: 16px
+                    - font-weight: 700
+                  label:
+                    - color: '#87919d'
+                    - font-size: 12px
+              - type: custom:button-card
+                entity: switch.ev_smart_charging_smart_charging_activated
+                name: Slim laden
+                label: Tik om te wisselen
+                show_label: true
+                icon: mdi:ev-station
+                tap_action:
+                  action: toggle
+                styles:
+                  card:
+                    - height: 112px
+                    - padding: 18px
+                    - border-radius: 24px
+                    - background: linear-gradient(145deg, #151a1f, #0c0f13)
+                    - border: 1px solid rgba(47,140,255,.28)
+                    - box-shadow: 0 14px 32px rgba(0,0,0,.28)
+                  icon:
+                    - width: 35px
+                    - color: '[[[ return entity.state === "on" ? "#35c759" : "#78828d"; ]]]'
+                  name:
+                    - color: '#f2f5f8'
+                    - font-size: 16px
+                    - font-weight: 700
+                  label:
+                    - color: '#87919d'
+                    - font-size: 12px
 
-      - type: grid
-        cards:
-          - type: custom:mushroom-title-card
-            title: Lader
-            subtitle: Easee
-          - type: custom:mushroom-template-card
-            entity: sensor.links_online
-            primary: Verbinding
-            secondary: "{{ states('sensor.links_online') }}"
-            icon: mdi:access-point
-            icon_color: "{{ 'green' if states('sensor.links_online') | lower in ['on','online','true'] else 'red' }}"
-            card_mod:
-              style: |
-                ha-card { border-radius: 22px; background: rgba(25,28,33,.94); border: 1px solid rgba(255,255,255,.07); }
-          - type: custom:mushroom-template-card
-            entity: sensor.links_stroom
-            primary: Actuele stroom
-            secondary: "{{ states('sensor.links_stroom') }} A"
-            icon: mdi:flash
-            icon_color: amber
-            card_mod:
-              style: |
-                ha-card { border-radius: 22px; background: rgba(25,28,33,.94); border: 1px solid rgba(255,255,255,.07); }
-
+      ##########################################################################
+      # STROOMPRIJS
+      ##########################################################################
       - type: grid
         column_span: 3
         cards:
           - type: custom:apexcharts-card
-            header:
-              show: true
-              title: Stroomprijs
-              show_states: true
-              colorize_states: true
             graph_span: 24h
             span:
               start: day
             now:
               show: true
               label: Nu
+              color: '#1aa7ec'
+            header:
+              show: true
+              title: Stroomprijs
+              show_states: false
             apex_config:
               chart:
-                height: 260
+                height: 255
+                background: '#101419'
+                foreColor: '#aeb7c2'
                 toolbar:
                   show: false
+                animations:
+                  enabled: true
+              theme:
+                mode: dark
               grid:
-                borderColor: rgba(255,255,255,.08)
+                borderColor: '#293039'
+                strokeDashArray: 0
               stroke:
-                curve: smooth
+                curve: stepline
+                width: 3
+              markers:
+                size: 0
               tooltip:
+                theme: dark
                 x:
                   format: HH:mm
+              xaxis:
+                labels:
+                  style:
+                    colors: '#aeb7c2'
               yaxis:
+                min: 0
                 decimalsInFloat: 3
+                labels:
+                  style:
+                    colors: '#aeb7c2'
+              legend:
+                show: false
             series:
               - entity: sensor.ev_smart_charging_price
                 name: EUR/kWh
-                type: column
-                color_threshold:
-                  - value: 0
-                    color: '#43a047'
-                  - value: 0.12
-                    color: '#8bc34a'
-                  - value: 0.20
-                    color: '#ffb300'
-                  - value: 0.30
-                    color: '#ef5350'
+                type: line
+                color: '#1aa7ec'
+                extend_to: end
                 data_generator: |
-                  const raw = entity.attributes.prices_today || [];
+                  let raw = entity.attributes.prices_today || [];
+                  if (typeof raw === 'string') {
+                    try { raw = JSON.parse(raw); } catch (e) { return []; }
+                  }
+                  if (!Array.isArray(raw)) return [];
                   return raw.map((p) => {
                     const start = p.start || p.start_time || p.datetime;
-                    const price = Number(p.price ?? p.value ?? 0);
+                    const price = Number(p.price ?? p.value);
                     return [new Date(start).getTime(), price];
-                  });
+                  }).filter((p) => Number.isFinite(p[0]) && Number.isFinite(p[1]));
             card_mod:
               style: |
                 ha-card {
-                  border-radius: 28px;
-                  background: rgba(18,20,24,.97);
-                  border: 1px solid rgba(255,255,255,.07);
-                  box-shadow: 0 18px 45px rgba(0,0,0,.22);
-                  padding: 8px;
+                  background: #101419 !important;
+                  border: 1px solid rgba(255,255,255,.08) !important;
+                  border-radius: 26px !important;
+                  box-shadow: 0 18px 42px rgba(0,0,0,.30) !important;
+                  color: #eef2f6 !important;
+                  padding: 8px 10px 4px 10px;
+                  overflow: hidden;
                 }
