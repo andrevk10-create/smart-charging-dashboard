@@ -309,51 +309,96 @@ views:
               label: Nu
               color: '#45b7ff'
             header:
-              show: true
-              title: Stroomprijs
-              show_states: false
+              show: false
             apex_config:
               chart:
-                height: 235
-                background: '#30363d'
+                height: 185
+                background: transparent
                 foreColor: '#c5cdd5'
                 toolbar:
                   show: false
+              title:
+                text: Stroomprijs
+                align: left
+                margin: 0
+                offsetX: 14
+                offsetY: 8
+                style:
+                  color: '#f6f8fa'
+                  fontSize: 17px
+                  fontWeight: 700
               theme:
                 mode: dark
               grid:
                 borderColor: '#4b545e'
+                padding:
+                  top: 18
+                  right: 10
+                  bottom: 0
+                  left: 10
+              xaxis:
+                type: datetime
+                labels:
+                  datetimeUTC: false
+                  format: HH:mm
+                  style:
+                    colors: '#aeb7c1'
+              yaxis:
+                decimalsInFloat: 3
+                labels:
+                  style:
+                    colors: '#aeb7c1'
               stroke:
                 curve: smooth
-                width: 3
+                width: 2
+              fill:
+                type: gradient
+                gradient:
+                  shade: dark
+                  opacityFrom: 0.32
+                  opacityTo: 0.03
               markers:
                 size: 0
+              legend:
+                show: false
               tooltip:
                 theme: dark
                 x:
                   format: HH:mm
-              yaxis:
-                decimalsInFloat: 3
             series:
-              - entity: sensor.ev_smart_charging_price
+              - entity: sensor.ev_smart_charging_charging
                 name: EUR/kWh
-                type: line
+                unit: ' €/kWh'
+                type: area
                 color: '#45b7ff'
+                float_precision: 5
+                extend_to: false
+                show:
+                  in_header: false
+                  legend_value: false
                 data_generator: |
-                  const raw = entity.attributes.prices_today || [];
-                  return raw.map((p) => {
-                    const start = p.start || p.start_time || p.datetime;
-                    const price = Number(p.price ?? p.value ?? 0);
-                    return [new Date(start).getTime(), price];
-                  });
+                  const prices = entity.attributes.raw_two_days || [];
+                  return prices
+                    .map((entry) => [
+                      new Date(entry.start).getTime(),
+                      Number(entry.value)
+                    ])
+                    .filter(([start, value]) =>
+                      Number.isFinite(start) && Number.isFinite(value)
+                    );
             card_mod:
               style: |
                 ha-card {
                   background: #30363d !important;
                   --ha-card-background: #30363d !important;
+                  --card-background-color: #30363d !important;
                   color: #f6f8fa !important;
                   border-radius: 24px;
                   border: 1px solid #424a53;
                   box-shadow: 0 12px 28px rgba(0,0,0,.22);
                   overflow: hidden;
+                }
+                .apexcharts-canvas,
+                .apexcharts-svg {
+                  background: transparent !important;
                 }
