@@ -9,8 +9,9 @@ Modern Home Assistant-dashboard voor **Audi e-tron**, **Easee**, **EV Smart Char
 - Klaar-om-tijd en slimme laadschakelaar
 - Huidige en volgende stroomprijs
 - Easee sessie-energie, laadstroom, spanning en verbinding
-- Grote knoppen voor **Nu laden** en **Stoppen**
-- ApexCharts-prijsgrafiek met kleurzones
+- Grote knoppen voor **Nu laden**, **Stoppen** en **Slim laden**
+- Audi-bediening voor vergrendelen, veilig ontgrendelen, voorverwarmen en verversen
+- Compacte antraciete ApexCharts-prijsgrafiek
 
 ## Vereiste HACS-kaarten
 
@@ -49,20 +50,22 @@ sensor.links_sessie_energie
 sensor.links_laadstroom
 sensor.links_stroom
 sensor.links_voltage
-sensor.links_online
+binary_sensor.links_online
+lock.audi_e_tron_sportback_door_lock
+switch.audi_e_tron_sportback_preheater
 ```
 
 Wanneer een entiteit bij jou anders heet, vervang je alleen die entity-id in `dashboard/dashboard.yaml`.
 
 ## Opmerking over de prijsgrafiek
 
-De grafiek gebruikt het attribuut `prices_today` van:
+De grafiek gebruikt het attribuut `raw_two_days` van:
 
 ```yaml
-sensor.ev_smart_charging_price
+sensor.ev_smart_charging_charging
 ```
 
-Dit attribuut moet een lijst bevatten met per prijsblok minimaal een starttijd en prijs.
+De waarden worden automatisch van EUR/MWh naar EUR/kWh omgerekend wanneer dat nodig is.
 
 ## Versie
 
