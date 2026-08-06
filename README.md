@@ -52,7 +52,10 @@ sensor.links_stroom
 sensor.links_voltage
 binary_sensor.links_online
 lock.audi_e_tron_sportback_door_lock
-switch.audi_e_tron_sportback_preheater
+sensor.audi_e_tron_sportback_remaining_charge_time
+sensor.audi_e_tron_sportback_range
+sensor.audi_e_tron_sportback_climatisation_state
+sensor.audi_e_tron_sportback_doors_trunk_state
 ```
 
 Wanneer een entiteit bij jou anders heet, vervang je alleen die entity-id in `dashboard/dashboard.yaml`.
