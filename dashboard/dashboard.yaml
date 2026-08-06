@@ -4,7 +4,7 @@ views:
     path: laden
     icon: mdi:car-electric
     type: sections
-    max_columns: 3
+    max_columns: 4
     dense_section_placement: true
     background: "linear-gradient(145deg, #20242a 0%, #272c33 48%, #1d2126 100%)"
 
@@ -282,7 +282,7 @@ views:
       # BEDIENING
       ##########################################################################
       - type: grid
-        column_span: 3
+        column_span: 4
         cards:
           - type: grid
             columns: 3
@@ -378,7 +378,7 @@ views:
       # AUDI BEDIENING
       ##########################################################################
       - type: grid
-        column_span: 3
+        column_span: 4
         cards:
           - type: grid
             columns: 4
@@ -491,7 +491,7 @@ views:
       # STROOMPRIJS
       ##########################################################################
       - type: grid
-        column_span: 3
+        column_span: 4
         cards:
           - type: custom:apexcharts-card
             graph_span: 24h
