@@ -1,0 +1,309 @@
+title: Smart Charging
+views:
+  - title: Laden
+    path: laden
+    icon: mdi:car-electric
+    type: sections
+    max_columns: 3
+    sections:
+      - type: grid
+        column_span: 2
+        cards:
+          - type: custom:button-card
+            entity: sensor.audi_e_tron_sportback_state_of_charge
+            show_name: false
+            show_state: false
+            show_icon: false
+            custom_fields:
+              header: |
+                [[[
+                  const target = states['sensor.audi_e_tron_sportback_target_state_of_charge']?.state ?? '—';
+                  return `<div class="hero-header"><div><div class="eyebrow">AUDI E-TRON</div><div class="hero-title">Slim laden</div></div><ha-icon icon="mdi:car-electric" class="hero-icon"></ha-icon></div><div class="soc-row"><div class="soc">${entity.state}<span>%</span></div><div class="target">Doel ${target}%</div></div>`;
+                ]]]
+              bar: |
+                [[[
+                  const soc = Math.max(0, Math.min(100, Number(entity.state) || 0));
+                  const color = soc < 25 ? '#ef5350' : soc < 60 ? '#ffb300' : '#43a047';
+                  return `<div class="battery-track"><div class="battery-fill" style="width:${soc}%;background:${color}"></div></div>`;
+                ]]]
+              status: |
+                [[[
+                  const raw = states['sensor.ev_smart_charging_status']?.state ?? 'unknown';
+                  const labels = {
+                    charging: 'Bezig met laden',
+                    waiting_for_charging_to_begin: 'Wachten op laadmoment',
+                    no_charging_planned: 'Geen laden gepland',
+                    charging_completed: 'Laden voltooid',
+                    error: 'Storing'
+                  };
+                  const label = labels[raw] ?? raw.replaceAll('_',' ');
+                  const cls = raw === 'charging' ? 'ok' : raw === 'waiting_for_charging_to_begin' ? 'wait' : raw === 'error' ? 'bad' : 'idle';
+                  return `<div class="status-pill ${cls}"><span></span>${label}</div>`;
+                ]]]
+            styles:
+              grid:
+                - grid-template-areas: '"header" "bar" "status"'
+                - grid-template-columns: 1fr
+                - grid-template-rows: min-content min-content min-content
+              card:
+                - padding: 28px
+                - border-radius: 28px
+                - background: linear-gradient(145deg, rgba(28,31,36,.98), rgba(12,14,18,.98))
+                - border: 1px solid rgba(255,255,255,.08)
+                - box-shadow: 0 18px 45px rgba(0,0,0,.28)
+                - overflow: hidden
+              custom_fields:
+                header:
+                  - width: 100%
+                bar:
+                  - margin-top: 22px
+                status:
+                  - margin-top: 22px
+            extra_styles: |
+              .hero-header{display:flex;align-items:center;justify-content:space-between;color:#fff}.eyebrow{font-size:12px;letter-spacing:.18em;color:#9da3ad}.hero-title{font-size:28px;font-weight:700;margin-top:3px}.hero-icon{--mdc-icon-size:48px;color:#d6d9de}.soc-row{display:flex;align-items:flex-end;justify-content:space-between;margin-top:24px;color:#fff}.soc{font-size:64px;font-weight:700;line-height:.9}.soc span{font-size:26px;margin-left:4px;color:#b7bcc5}.target{font-size:16px;color:#b7bcc5;padding-bottom:5px}.battery-track{height:14px;border-radius:999px;background:rgba(255,255,255,.10);overflow:hidden}.battery-fill{height:100%;border-radius:999px;transition:width .8s ease}.status-pill{display:inline-flex;align-items:center;gap:9px;padding:9px 13px;border-radius:999px;font-size:14px;color:#d9dde4;background:rgba(255,255,255,.07)}.status-pill span{width:9px;height:9px;border-radius:50%;background:#9097a1}.status-pill.ok span{background:#4caf50;box-shadow:0 0 12px #4caf50}.status-pill.wait span{background:#ffb300;box-shadow:0 0 12px #ffb300}.status-pill.bad span{background:#ef5350;box-shadow:0 0 12px #ef5350}
+
+          - type: custom:mushroom-template-card
+            entity: sensor.ev_smart_charging_status
+            primary: Laadregeling
+            secondary: >-
+              {% set s = states('sensor.ev_smart_charging_status') %}
+              {% if s == 'charging' %}
+                Bezig met laden
+              {% elif s == 'waiting_for_charging_to_begin' %}
+                Wachten op het berekende laadmoment
+              {% elif s == 'no_charging_planned' %}
+                Geen laden gepland
+              {% elif s == 'charging_completed' %}
+                Laden voltooid
+              {% else %}
+                {{ s | replace('_', ' ') }}
+              {% endif %}
+            icon: mdi:brain
+            icon_color: >-
+              {% set s = states('sensor.ev_smart_charging_status') %}
+              {% if s == 'charging' %}green{% elif s == 'waiting_for_charging_to_begin' %}amber{% elif s == 'error' %}red{% else %}grey{% endif %}
+            multiline_secondary: true
+            fill_container: true
+            tap_action:
+              action: more-info
+            card_mod:
+              style: |
+                ha-card {
+                  border-radius: 24px;
+                  padding: 10px;
+                  background: rgba(25,28,33,.94);
+                  border: 1px solid rgba(255,255,255,.07);
+                  box-shadow: none;
+                }
+
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Planning
+            subtitle: EV Smart Charging
+          - type: custom:mushroom-template-card
+            entity: select.ev_smart_charging_charge_completion_time
+            primary: Klaar om
+            secondary: "{{ states('select.ev_smart_charging_charge_completion_time') }}"
+            icon: mdi:clock-check-outline
+            icon_color: blue
+            tap_action:
+              action: more-info
+            card_mod:
+              style: |
+                ha-card { border-radius: 22px; background: rgba(25,28,33,.94); border: 1px solid rgba(255,255,255,.07); }
+          - type: custom:mushroom-template-card
+            entity: switch.ev_smart_charging_smart_charging_activated
+            primary: Slim laden
+            secondary: "{{ 'Ingeschakeld' if is_state('switch.ev_smart_charging_smart_charging_activated','on') else 'Uitgeschakeld' }}"
+            icon: mdi:ev-station
+            icon_color: "{{ 'green' if is_state('switch.ev_smart_charging_smart_charging_activated','on') else 'grey' }}"
+            tap_action:
+              action: toggle
+            card_mod:
+              style: |
+                ha-card { border-radius: 22px; background: rgba(25,28,33,.94); border: 1px solid rgba(255,255,255,.07); }
+          - type: custom:mushroom-template-card
+            entity: sensor.ev_smart_charging_price
+            primary: Huidige prijs
+            secondary: "€ {{ states('sensor.ev_smart_charging_price') }} / kWh"
+            icon: mdi:currency-eur
+            icon_color: teal
+            card_mod:
+              style: |
+                ha-card { border-radius: 22px; background: rgba(25,28,33,.94); border: 1px solid rgba(255,255,255,.07); }
+          - type: custom:mushroom-template-card
+            entity: sensor.nord_pool_nl_volgende_prijs
+            primary: Volgende prijs
+            secondary: "€ {{ states('sensor.nord_pool_nl_volgende_prijs') }} / kWh"
+            icon: mdi:clock-fast
+            icon_color: cyan
+            card_mod:
+              style: |
+                ha-card { border-radius: 22px; background: rgba(25,28,33,.94); border: 1px solid rgba(255,255,255,.07); }
+
+      - type: grid
+        column_span: 2
+        cards:
+          - type: custom:mushroom-title-card
+            title: Laadsessie
+            subtitle: Easee livegegevens
+          - type: horizontal-stack
+            cards:
+              - type: custom:mushroom-template-card
+                entity: sensor.links_sessie_energie
+                primary: Energie
+                secondary: "{{ states('sensor.links_sessie_energie') }} kWh"
+                icon: mdi:lightning-bolt-circle
+                icon_color: green
+                layout: vertical
+                card_mod:
+                  style: |
+                    ha-card { border-radius: 22px; background: rgba(25,28,33,.94); border: 1px solid rgba(255,255,255,.07); }
+              - type: custom:mushroom-template-card
+                entity: sensor.links_laadstroom
+                primary: Laadstroom
+                secondary: "{{ states('sensor.links_laadstroom') }} A"
+                icon: mdi:current-ac
+                icon_color: amber
+                layout: vertical
+                card_mod:
+                  style: |
+                    ha-card { border-radius: 22px; background: rgba(25,28,33,.94); border: 1px solid rgba(255,255,255,.07); }
+              - type: custom:mushroom-template-card
+                entity: sensor.links_voltage
+                primary: Spanning
+                secondary: "{{ states('sensor.links_voltage') }} V"
+                icon: mdi:sine-wave
+                icon_color: blue
+                layout: vertical
+                card_mod:
+                  style: |
+                    ha-card { border-radius: 22px; background: rgba(25,28,33,.94); border: 1px solid rgba(255,255,255,.07); }
+          - type: horizontal-stack
+            cards:
+              - type: custom:button-card
+                name: Nu laden
+                icon: mdi:play
+                tap_action:
+                  action: perform-action
+                  perform_action: button.press
+                  target:
+                    entity_id: button.ev_smart_charging_manually_start_charging
+                styles:
+                  card:
+                    - height: 92px
+                    - border-radius: 24px
+                    - background: linear-gradient(135deg, #218739, #145423)
+                    - border: 1px solid rgba(255,255,255,.10)
+                    - color: white
+                    - box-shadow: 0 14px 30px rgba(20,84,35,.25)
+                  icon:
+                    - width: 32px
+                  name:
+                    - font-size: 17px
+                    - font-weight: 600
+              - type: custom:button-card
+                name: Stoppen
+                icon: mdi:stop
+                tap_action:
+                  action: perform-action
+                  perform_action: button.press
+                  target:
+                    entity_id: button.ev_smart_charging_manually_stop_charging
+                styles:
+                  card:
+                    - height: 92px
+                    - border-radius: 24px
+                    - background: linear-gradient(135deg, #a92d2d, #651a1a)
+                    - border: 1px solid rgba(255,255,255,.10)
+                    - color: white
+                    - box-shadow: 0 14px 30px rgba(101,26,26,.25)
+                  icon:
+                    - width: 32px
+                  name:
+                    - font-size: 17px
+                    - font-weight: 600
+
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Lader
+            subtitle: Easee
+          - type: custom:mushroom-template-card
+            entity: sensor.links_online
+            primary: Verbinding
+            secondary: "{{ states('sensor.links_online') }}"
+            icon: mdi:access-point
+            icon_color: "{{ 'green' if states('sensor.links_online') | lower in ['on','online','true'] else 'red' }}"
+            card_mod:
+              style: |
+                ha-card { border-radius: 22px; background: rgba(25,28,33,.94); border: 1px solid rgba(255,255,255,.07); }
+          - type: custom:mushroom-template-card
+            entity: sensor.links_stroom
+            primary: Actuele stroom
+            secondary: "{{ states('sensor.links_stroom') }} A"
+            icon: mdi:flash
+            icon_color: amber
+            card_mod:
+              style: |
+                ha-card { border-radius: 22px; background: rgba(25,28,33,.94); border: 1px solid rgba(255,255,255,.07); }
+
+      - type: grid
+        column_span: 3
+        cards:
+          - type: custom:apexcharts-card
+            header:
+              show: true
+              title: Stroomprijs
+              show_states: true
+              colorize_states: true
+            graph_span: 24h
+            span:
+              start: day
+            now:
+              show: true
+              label: Nu
+            apex_config:
+              chart:
+                height: 260
+                toolbar:
+                  show: false
+              grid:
+                borderColor: rgba(255,255,255,.08)
+              stroke:
+                curve: smooth
+              tooltip:
+                x:
+                  format: HH:mm
+              yaxis:
+                decimalsInFloat: 3
+            series:
+              - entity: sensor.ev_smart_charging_price
+                name: EUR/kWh
+                type: column
+                color_threshold:
+                  - value: 0
+                    color: '#43a047'
+                  - value: 0.12
+                    color: '#8bc34a'
+                  - value: 0.20
+                    color: '#ffb300'
+                  - value: 0.30
+                    color: '#ef5350'
+                data_generator: |
+                  const raw = entity.attributes.prices_today || [];
+                  return raw.map((p) => {
+                    const start = p.start || p.start_time || p.datetime;
+                    const price = Number(p.price ?? p.value ?? 0);
+                    return [new Date(start).getTime(), price];
+                  });
+            card_mod:
+              style: |
+                ha-card {
+                  border-radius: 28px;
+                  background: rgba(18,20,24,.97);
+                  border: 1px solid rgba(255,255,255,.07);
+                  box-shadow: 0 18px 45px rgba(0,0,0,.22);
+                  padding: 8px;
+                }
