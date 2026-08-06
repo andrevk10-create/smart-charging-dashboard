@@ -513,8 +513,17 @@ views:
                     );
             card_mod:
               style: |
+                :host {
+                  display: block;
+                  background: #30363d !important;
+                  --ha-card-background: #30363d !important;
+                  --card-background-color: #30363d !important;
+                  --primary-text-color: #f6f8fa !important;
+                  --secondary-text-color: #aeb7c1 !important;
+                }
                 ha-card {
                   background: #30363d !important;
+                  background-color: #30363d !important;
                   --ha-card-background: #30363d !important;
                   --card-background-color: #30363d !important;
                   color: #f6f8fa !important;
