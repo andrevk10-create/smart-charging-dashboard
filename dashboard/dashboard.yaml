@@ -220,29 +220,14 @@ views:
             custom_fields:
               content: |
                 [[[
-                  const first = (...ids) => ids.map(id => states[id]).find(Boolean);
                   const clean = state => {
                     if (!state || ['unknown','unavailable','none','null'].includes(String(state).toLowerCase())) return 'Niet beschikbaar';
                     return state;
                   };
-                  const remaining = first(
-                    'sensor.audi_e_tron_sportback_remaining_charge_time',
-                    'sensor.audi_e_tron_sportback_remaining_charging_time'
-                  );
-                  const range = first(
-                    'sensor.audi_e_tron_sportback_range',
-                    'sensor.audi_e_tron_sportback_primary_engine_range',
-                    'sensor.audi_e_tron_sportback_electric_range'
-                  );
-                  const doors = first(
-                    'sensor.audi_e_tron_sportback_doors_trunk_state',
-                    'lock.audi_e_tron_sportback_door_lock',
-                    'binary_sensor.audi_e_tron_sportback_doors_lock'
-                  );
-                  const climate = first(
-                    'sensor.audi_e_tron_sportback_climatisation_state',
-                    'sensor.audi_e_tron_sportback_climate_state'
-                  );
+                  const remaining = states['sensor.audi_e_tron_sportback_remaining_charge_time'];
+                  const range = states['sensor.audi_e_tron_sportback_range'];
+                  const doors = states['lock.audi_e_tron_sportback_door_lock'];
+                  const climate = states['sensor.audi_e_tron_sportback_climatisation_state'];
 
                   const remainingText = remaining
                     ? `${clean(remaining.state)}${remaining.attributes?.unit_of_measurement ? ' ' + remaining.attributes.unit_of_measurement : ''}`
