@@ -298,9 +298,10 @@ views:
                 icon: mdi:play
                 tap_action:
                   action: perform-action
-                  perform_action: button.press
-                  target:
-                    entity_id: button.ev_smart_charging_manually_start_charging
+                  perform_action: easee.action_command
+                  data:
+                    device_id: 55a98b1ed912361eaad77b77f8d509cb
+                    action_command: start
                 styles:
                   card:
                     - height: 96px
@@ -327,9 +328,10 @@ views:
                 icon: mdi:stop
                 tap_action:
                   action: perform-action
-                  perform_action: button.press
-                  target:
-                    entity_id: button.ev_smart_charging_manually_stop_charging
+                  perform_action: easee.action_command
+                  data:
+                    device_id: 55a98b1ed912361eaad77b77f8d509cb
+                    action_command: stop
                 styles:
                   card:
                     - height: 96px
