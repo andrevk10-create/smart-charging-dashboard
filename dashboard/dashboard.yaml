@@ -6,7 +6,7 @@ views:
     type: sections
     max_columns: 3
     dense_section_placement: true
-    background: "linear-gradient(145deg, #07090c 0%, #0d1116 52%, #080a0d 100%)"
+    background: "linear-gradient(145deg, #20242a 0%, #272c33 48%, #1d2126 100%)"
 
     sections:
       ##########################################################################
@@ -25,25 +25,16 @@ views:
                   const soc = Math.max(0, Math.min(100, Number(entity.state) || 0));
                   const target = states['sensor.audi_e_tron_sportback_target_state_of_charge']?.state ?? '—';
                   const raw = states['sensor.ev_smart_charging_status']?.state ?? 'unknown';
-
-                  const statusText = {
+                  const labels = {
                     charging: 'Bezig met laden',
                     waiting_for_charging_to_begin: 'Wachten op laadmoment',
                     no_charging_planned: 'Geen laden gepland',
                     charging_completed: 'Laden voltooid',
                     error: 'Storing'
-                  }[raw] ?? raw.replaceAll('_', ' ');
-
-                  const accent = raw === 'charging'
-                    ? '#35c759'
-                    : raw === 'waiting_for_charging_to_begin'
-                      ? '#ffb000'
-                      : raw === 'error'
-                        ? '#ff453a'
-                        : '#8e98a4';
-
-                  const battery = soc < 25 ? '#ff453a' : soc < 60 ? '#ffb000' : '#35c759';
-
+                  };
+                  const status = labels[raw] ?? raw.replaceAll('_',' ');
+                  const accent = raw === 'charging' ? '#41d166' : raw === 'waiting_for_charging_to_begin' ? '#ffb41f' : raw === 'error' ? '#ff5a52' : '#9aa4ae';
+                  const battery = soc < 25 ? '#ff5a52' : soc < 60 ? '#ffb41f' : '#41d166';
                   return `
                     <div class="hero-head">
                       <div>
@@ -52,20 +43,12 @@ views:
                       </div>
                       <ha-icon icon="mdi:car-electric" class="car-icon"></ha-icon>
                     </div>
-
                     <div class="soc-row">
                       <div class="soc">${soc}<span>%</span></div>
                       <div class="target">Doel ${target}%</div>
                     </div>
-
-                    <div class="battery-track">
-                      <div class="battery-fill" style="width:${soc}%;background:${battery}"></div>
-                    </div>
-
-                    <div class="status-pill">
-                      <span style="background:${accent};box-shadow:0 0 12px ${accent}"></span>
-                      ${statusText}
-                    </div>
+                    <div class="battery-track"><div class="battery-fill" style="width:${soc}%;background:${battery}"></div></div>
+                    <div class="status-pill"><span style="background:${accent};box-shadow:0 0 12px ${accent}"></span>${status}</div>
                   `;
                 ]]]
             styles:
@@ -73,28 +56,34 @@ views:
                 - grid-template-areas: '"content"'
                 - grid-template-columns: 1fr
               card:
-                - min-height: 290px
-                - padding: 26px
-                - border-radius: 26px
-                - background: linear-gradient(145deg, #171b20 0%, #0d1014 100%)
-                - border: 1px solid rgba(255,255,255,.08)
-                - box-shadow: 0 18px 42px rgba(0,0,0,.34)
-                - overflow: hidden
+                - min-height: 255px
+                - padding: 24px
+                - border-radius: 24px
+                - background: '#30363d'
+                - color: '#f6f8fa'
+                - border: 1px solid '#424a53'
+                - box-shadow: 0 12px 28px rgba(0,0,0,.22)
               custom_fields:
                 content:
                   - width: 100%
+            card_mod:
+              style: |
+                ha-card {
+                  background: #30363d !important;
+                  --ha-card-background: #30363d !important;
+                  color: #f6f8fa !important;
+                }
             extra_styles: |
-              .hero-head{display:flex;align-items:flex-start;justify-content:space-between;color:#f5f7fa}
-              .eyebrow{font-size:12px;letter-spacing:.18em;color:#9ca6b2}
+              .hero-head{display:flex;align-items:flex-start;justify-content:space-between;color:#f6f8fa}
+              .eyebrow{font-size:12px;letter-spacing:.18em;color:#aeb7c1}
               .hero-title{font-size:27px;font-weight:700;margin-top:5px}
-              .car-icon{--mdc-icon-size:46px;color:#d6dbe1}
-              .soc-row{display:flex;align-items:flex-end;justify-content:space-between;margin-top:27px;color:#f7f9fb}
-              .soc{font-size:68px;font-weight:700;line-height:.88}
-              .soc span{font-size:27px;margin-left:4px;color:#c1c8d0}
-              .target{font-size:16px;color:#c1c8d0;padding-bottom:4px}
-              .battery-track{height:14px;margin-top:24px;border-radius:999px;background:#292e35;overflow:hidden}
+              .car-icon{--mdc-icon-size:44px;color:#d8dee4}
+              .soc-row{display:flex;align-items:flex-end;justify-content:space-between;margin-top:24px;color:#f6f8fa}
+              .soc{font-size:64px;font-weight:700;line-height:.9}.soc span{font-size:25px;margin-left:4px;color:#c6ced6}
+              .target{font-size:16px;color:#c6ced6;padding-bottom:4px}
+              .battery-track{height:13px;margin-top:22px;border-radius:999px;background:#454c55;overflow:hidden}
               .battery-fill{height:100%;border-radius:999px;transition:width .8s ease}
-              .status-pill{display:table;margin:22px auto 0;padding:9px 15px;border-radius:999px;background:#20242a;color:#e5e9ee;font-size:14px}
+              .status-pill{display:table;margin:20px auto 0;padding:8px 14px;border-radius:999px;background:#3a4149;color:#f0f3f6;font-size:14px;border:1px solid #4b545e}
               .status-pill span{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:9px}
 
       ##########################################################################
@@ -114,53 +103,43 @@ views:
                   const smartOn = states['switch.ev_smart_charging_smart_charging_activated']?.state === 'on';
                   const current = Number(states['sensor.ev_smart_charging_price']?.state);
                   const next = Number(states['sensor.nord_pool_nl_volgende_prijs']?.state);
-                  const money = (n) => Number.isFinite(n) ? `€ ${n.toFixed(5)} / kWh` : 'Niet beschikbaar';
-
+                  const money = n => Number.isFinite(n) ? `€ ${n.toFixed(5)} / kWh` : 'Niet beschikbaar';
                   return `
                     <div class="panel-title">PLANNING</div>
                     <div class="panel-subtitle">EV SMART CHARGING</div>
-
-                    <div class="data-row">
-                      <ha-icon icon="mdi:clock-check-outline" style="color:#2f8cff"></ha-icon>
-                      <span>Klaar om</span><b>${complete}</b>
-                    </div>
-                    <div class="data-row">
-                      <ha-icon icon="mdi:ev-station" style="color:${smartOn ? '#35c759' : '#7f8994'}"></ha-icon>
-                      <span>Slim laden</span><b style="color:${smartOn ? '#35c759' : '#aeb5bd'}">${smartOn ? 'Ingeschakeld' : 'Uitgeschakeld'}</b>
-                    </div>
-                    <div class="data-row">
-                      <ha-icon icon="mdi:currency-eur" style="color:#35c759"></ha-icon>
-                      <span>Huidige prijs</span><b>${money(current)}</b>
-                    </div>
-                    <div class="data-row">
-                      <ha-icon icon="mdi:clock-fast" style="color:#2f8cff"></ha-icon>
-                      <span>Volgende prijs</span><b>${money(next)}</b>
-                    </div>
+                    <div class="data-row"><ha-icon icon="mdi:clock-check-outline" style="color:#4f9dff"></ha-icon><span>Klaar om</span><b>${complete}</b></div>
+                    <div class="data-row"><ha-icon icon="mdi:ev-station" style="color:${smartOn ? '#41d166' : '#98a2ad'}"></ha-icon><span>Slim laden</span><b style="color:${smartOn ? '#41d166' : '#c0c7ce'}">${smartOn ? 'Ingeschakeld' : 'Uitgeschakeld'}</b></div>
+                    <div class="data-row"><ha-icon icon="mdi:currency-eur" style="color:#41d166"></ha-icon><span>Huidige prijs</span><b>${money(current)}</b></div>
+                    <div class="data-row"><ha-icon icon="mdi:clock-fast" style="color:#4f9dff"></ha-icon><span>Volgende prijs</span><b>${money(next)}</b></div>
                   `;
                 ]]]
-            tap_action:
-              action: more-info
             styles:
               grid:
                 - grid-template-areas: '"content"'
                 - grid-template-columns: 1fr
               card:
-                - min-height: 290px
-                - padding: 25px
-                - border-radius: 26px
-                - background: linear-gradient(145deg, #151a1f 0%, #0c0f13 100%)
-                - border: 1px solid rgba(255,255,255,.08)
-                - box-shadow: 0 18px 42px rgba(0,0,0,.30)
+                - min-height: 255px
+                - padding: 22px
+                - border-radius: 24px
+                - background: '#30363d'
+                - color: '#f6f8fa'
+                - border: 1px solid '#424a53'
+                - box-shadow: 0 12px 28px rgba(0,0,0,.22)
               custom_fields:
                 content:
                   - width: 100%
+            card_mod:
+              style: |
+                ha-card {
+                  background: #30363d !important;
+                  --ha-card-background: #30363d !important;
+                  color: #f6f8fa !important;
+                }
             extra_styles: |
-              .panel-title{font-size:17px;font-weight:700;letter-spacing:.08em;color:#f1f4f7}
-              .panel-subtitle{font-size:13px;letter-spacing:.08em;color:#8f99a5;margin-top:5px;margin-bottom:18px}
-              .data-row{height:48px;display:grid;grid-template-columns:30px 1fr auto;align-items:center;padding:0 13px;margin-top:9px;border-radius:14px;background:#171b20;border:1px solid rgba(255,255,255,.06);color:#edf1f5}
-              .data-row ha-icon{--mdc-icon-size:23px}
-              .data-row span{font-size:15px}
-              .data-row b{font-size:14px;font-weight:600;color:#e8ecf0}
+              .panel-title{font-size:17px;font-weight:700;letter-spacing:.08em;color:#f6f8fa}
+              .panel-subtitle{font-size:12px;letter-spacing:.08em;color:#aeb7c1;margin-top:4px;margin-bottom:14px}
+              .data-row{height:43px;display:grid;grid-template-columns:29px 1fr auto;align-items:center;padding:0 12px;margin-top:8px;border-radius:13px;background:#3a4149;border:1px solid #4b545e;color:#f2f4f7}
+              .data-row ha-icon{--mdc-icon-size:22px}.data-row span{font-size:14px}.data-row b{font-size:13px;font-weight:600;color:#f2f4f7}
 
       ##########################################################################
       # LAADSESSIE
@@ -175,37 +154,20 @@ views:
             custom_fields:
               content: |
                 [[[
-                  const value = (id, digits = 2) => {
+                  const value = (id,d=2) => {
                     const raw = states[id]?.state;
-                    const number = Number(raw);
-                    return Number.isFinite(number)
-                      ? number.toLocaleString('nl-NL', {maximumFractionDigits: digits})
-                      : (raw ?? '—');
+                    const n = Number(raw);
+                    return Number.isFinite(n) ? n.toLocaleString('nl-NL',{maximumFractionDigits:d}) : (raw ?? '—');
                   };
-
                   const onlineRaw = (states['sensor.links_online']?.state ?? 'onbekend').toLowerCase();
                   const online = ['verbonden','online','on','true'].includes(onlineRaw);
-
                   return `
                     <div class="panel-title">LAADSESSIE</div>
                     <div class="panel-subtitle">EASEE</div>
-
-                    <div class="data-row">
-                      <ha-icon icon="mdi:lightning-bolt" style="color:#35c759"></ha-icon>
-                      <span>Energie</span><b>${value('sensor.links_sessie_energie')} kWh</b>
-                    </div>
-                    <div class="data-row">
-                      <ha-icon icon="mdi:current-ac" style="color:#ffb000"></ha-icon>
-                      <span>Laadstroom</span><b>${value('sensor.links_laadstroom', 2)} A</b>
-                    </div>
-                    <div class="data-row">
-                      <ha-icon icon="mdi:sine-wave" style="color:#2f8cff"></ha-icon>
-                      <span>Spanning</span><b>${value('sensor.links_voltage', 1)} V</b>
-                    </div>
-                    <div class="data-row">
-                      <ha-icon icon="mdi:access-point" style="color:${online ? '#35c759' : '#ff453a'}"></ha-icon>
-                      <span>Verbinding</span><b>${states['sensor.links_online']?.state ?? 'Onbekend'}</b>
-                    </div>
+                    <div class="data-row"><ha-icon icon="mdi:lightning-bolt" style="color:#41d166"></ha-icon><span>Energie</span><b>${value('sensor.links_sessie_energie')} kWh</b></div>
+                    <div class="data-row"><ha-icon icon="mdi:current-ac" style="color:#ffb41f"></ha-icon><span>Laadstroom</span><b>${value('sensor.links_laadstroom',2)} A</b></div>
+                    <div class="data-row"><ha-icon icon="mdi:sine-wave" style="color:#4f9dff"></ha-icon><span>Spanning</span><b>${value('sensor.links_voltage',1)} V</b></div>
+                    <div class="data-row"><ha-icon icon="mdi:access-point" style="color:${online ? '#41d166' : '#ff5a52'}"></ha-icon><span>Verbinding</span><b>${states['sensor.links_online']?.state ?? 'Onbekend'}</b></div>
                   `;
                 ]]]
             styles:
@@ -213,22 +175,28 @@ views:
                 - grid-template-areas: '"content"'
                 - grid-template-columns: 1fr
               card:
-                - min-height: 290px
-                - padding: 25px
-                - border-radius: 26px
-                - background: linear-gradient(145deg, #151a1f 0%, #0c0f13 100%)
-                - border: 1px solid rgba(255,255,255,.08)
-                - box-shadow: 0 18px 42px rgba(0,0,0,.30)
+                - min-height: 255px
+                - padding: 22px
+                - border-radius: 24px
+                - background: '#30363d'
+                - color: '#f6f8fa'
+                - border: 1px solid '#424a53'
+                - box-shadow: 0 12px 28px rgba(0,0,0,.22)
               custom_fields:
                 content:
                   - width: 100%
+            card_mod:
+              style: |
+                ha-card {
+                  background: #30363d !important;
+                  --ha-card-background: #30363d !important;
+                  color: #f6f8fa !important;
+                }
             extra_styles: |
-              .panel-title{font-size:17px;font-weight:700;letter-spacing:.08em;color:#f1f4f7}
-              .panel-subtitle{font-size:13px;letter-spacing:.08em;color:#8f99a5;margin-top:5px;margin-bottom:18px}
-              .data-row{height:48px;display:grid;grid-template-columns:30px 1fr auto;align-items:center;padding:0 13px;margin-top:9px;border-radius:14px;background:#171b20;border:1px solid rgba(255,255,255,.06);color:#edf1f5}
-              .data-row ha-icon{--mdc-icon-size:23px}
-              .data-row span{font-size:15px}
-              .data-row b{font-size:14px;font-weight:600;color:#e8ecf0}
+              .panel-title{font-size:17px;font-weight:700;letter-spacing:.08em;color:#f6f8fa}
+              .panel-subtitle{font-size:12px;letter-spacing:.08em;color:#aeb7c1;margin-top:4px;margin-bottom:14px}
+              .data-row{height:43px;display:grid;grid-template-columns:29px 1fr auto;align-items:center;padding:0 12px;margin-top:8px;border-radius:13px;background:#3a4149;border:1px solid #4b545e;color:#f2f4f7}
+              .data-row ha-icon{--mdc-icon-size:22px}.data-row span{font-size:14px}.data-row b{font-size:13px;font-weight:600;color:#f2f4f7}
 
       ##########################################################################
       # BEDIENING
@@ -252,22 +220,23 @@ views:
                     entity_id: button.ev_smart_charging_manually_start_charging
                 styles:
                   card:
-                    - height: 112px
-                    - padding: 18px
-                    - border-radius: 24px
-                    - background: linear-gradient(145deg, #151a1f, #0c0f13)
-                    - border: 1px solid rgba(53,199,89,.28)
-                    - box-shadow: 0 14px 32px rgba(0,0,0,.28)
+                    - height: 96px
+                    - border-radius: 22px
+                    - background: '#30363d'
+                    - border: 1px solid rgba(65,209,102,.45)
                   icon:
-                    - width: 35px
-                    - color: '#35c759'
+                    - width: 31px
+                    - color: '#41d166'
                   name:
-                    - color: '#f2f5f8'
-                    - font-size: 16px
+                    - color: '#f6f8fa'
+                    - font-size: 15px
                     - font-weight: 700
                   label:
-                    - color: '#87919d'
+                    - color: '#aeb7c1'
                     - font-size: 12px
+                card_mod:
+                  style: |
+                    ha-card { background:#30363d !important; --ha-card-background:#30363d !important; }
               - type: custom:button-card
                 name: Stop laden
                 label: Stop direct
@@ -280,22 +249,23 @@ views:
                     entity_id: button.ev_smart_charging_manually_stop_charging
                 styles:
                   card:
-                    - height: 112px
-                    - padding: 18px
-                    - border-radius: 24px
-                    - background: linear-gradient(145deg, #151a1f, #0c0f13)
-                    - border: 1px solid rgba(255,69,58,.28)
-                    - box-shadow: 0 14px 32px rgba(0,0,0,.28)
+                    - height: 96px
+                    - border-radius: 22px
+                    - background: '#30363d'
+                    - border: 1px solid rgba(255,90,82,.45)
                   icon:
-                    - width: 35px
-                    - color: '#ff453a'
+                    - width: 31px
+                    - color: '#ff5a52'
                   name:
-                    - color: '#f2f5f8'
-                    - font-size: 16px
+                    - color: '#f6f8fa'
+                    - font-size: 15px
                     - font-weight: 700
                   label:
-                    - color: '#87919d'
+                    - color: '#aeb7c1'
                     - font-size: 12px
+                card_mod:
+                  style: |
+                    ha-card { background:#30363d !important; --ha-card-background:#30363d !important; }
               - type: custom:button-card
                 entity: switch.ev_smart_charging_smart_charging_activated
                 name: Slim laden
@@ -306,22 +276,23 @@ views:
                   action: toggle
                 styles:
                   card:
-                    - height: 112px
-                    - padding: 18px
-                    - border-radius: 24px
-                    - background: linear-gradient(145deg, #151a1f, #0c0f13)
-                    - border: 1px solid rgba(47,140,255,.28)
-                    - box-shadow: 0 14px 32px rgba(0,0,0,.28)
+                    - height: 96px
+                    - border-radius: 22px
+                    - background: '#30363d'
+                    - border: 1px solid rgba(79,157,255,.45)
                   icon:
-                    - width: 35px
-                    - color: '[[[ return entity.state === "on" ? "#35c759" : "#78828d"; ]]]'
+                    - width: 31px
+                    - color: '[[[ return entity.state === "on" ? "#41d166" : "#98a2ad"; ]]]'
                   name:
-                    - color: '#f2f5f8'
-                    - font-size: 16px
+                    - color: '#f6f8fa'
+                    - font-size: 15px
                     - font-weight: 700
                   label:
-                    - color: '#87919d'
+                    - color: '#aeb7c1'
                     - font-size: 12px
+                card_mod:
+                  style: |
+                    ha-card { background:#30363d !important; --ha-card-background:#30363d !important; }
 
       ##########################################################################
       # STROOMPRIJS
@@ -336,27 +307,24 @@ views:
             now:
               show: true
               label: Nu
-              color: '#1aa7ec'
+              color: '#45b7ff'
             header:
               show: true
               title: Stroomprijs
               show_states: false
             apex_config:
               chart:
-                height: 255
-                background: '#101419'
-                foreColor: '#aeb7c2'
+                height: 235
+                background: '#30363d'
+                foreColor: '#c5cdd5'
                 toolbar:
                   show: false
-                animations:
-                  enabled: true
               theme:
                 mode: dark
               grid:
-                borderColor: '#293039'
-                strokeDashArray: 0
+                borderColor: '#4b545e'
               stroke:
-                curve: stepline
+                curve: smooth
                 width: 3
               markers:
                 size: 0
@@ -364,43 +332,28 @@ views:
                 theme: dark
                 x:
                   format: HH:mm
-              xaxis:
-                labels:
-                  style:
-                    colors: '#aeb7c2'
               yaxis:
-                min: 0
                 decimalsInFloat: 3
-                labels:
-                  style:
-                    colors: '#aeb7c2'
-              legend:
-                show: false
             series:
               - entity: sensor.ev_smart_charging_price
                 name: EUR/kWh
                 type: line
-                color: '#1aa7ec'
-                extend_to: end
+                color: '#45b7ff'
                 data_generator: |
-                  let raw = entity.attributes.prices_today || [];
-                  if (typeof raw === 'string') {
-                    try { raw = JSON.parse(raw); } catch (e) { return []; }
-                  }
-                  if (!Array.isArray(raw)) return [];
+                  const raw = entity.attributes.prices_today || [];
                   return raw.map((p) => {
                     const start = p.start || p.start_time || p.datetime;
-                    const price = Number(p.price ?? p.value);
+                    const price = Number(p.price ?? p.value ?? 0);
                     return [new Date(start).getTime(), price];
-                  }).filter((p) => Number.isFinite(p[0]) && Number.isFinite(p[1]));
+                  });
             card_mod:
               style: |
                 ha-card {
-                  background: #101419 !important;
-                  border: 1px solid rgba(255,255,255,.08) !important;
-                  border-radius: 26px !important;
-                  box-shadow: 0 18px 42px rgba(0,0,0,.30) !important;
-                  color: #eef2f6 !important;
-                  padding: 8px 10px 4px 10px;
+                  background: #30363d !important;
+                  --ha-card-background: #30363d !important;
+                  color: #f6f8fa !important;
+                  border-radius: 24px;
+                  border: 1px solid #424a53;
+                  box-shadow: 0 12px 28px rgba(0,0,0,.22);
                   overflow: hidden;
                 }
