@@ -251,10 +251,12 @@ views:
                   return `
                     <div class="panel-title">AUDI STATUS</div>
                     <div class="panel-subtitle">AUDI CONNECT</div>
-                    <div class="data-row"><ha-icon icon="mdi:battery-clock-outline" style="color:#4f9dff"></ha-icon><span>Resterende laadtijd</span><b>${remainingText}</b></div>
-                    <div class="data-row"><ha-icon icon="mdi:map-marker-distance" style="color:#41d166"></ha-icon><span>Actieradius</span><b>${rangeText}</b></div>
-                    <div class="data-row"><ha-icon icon="${locked ? 'mdi:car-door-lock' : 'mdi:car-door-lock-open'}" style="color:${locked ? '#41d166' : '#ffb41f'}"></ha-icon><span>Vergrendeling</span><b style="color:${locked ? '#41d166' : '#ffb41f'}">${doorText}</b></div>
-                    <div class="data-row"><ha-icon icon="mdi:air-conditioner" style="color:${climateOn ? '#41d166' : '#98a2ad'}"></ha-icon><span>Klimaat</span><b style="color:${climateOn ? '#41d166' : '#c0c7ce'}">${climateText}</b></div>
+                    <div class="status-grid">
+                      <div class="data-row"><ha-icon icon="mdi:battery-clock-outline" style="color:#4f9dff"></ha-icon><span>Resterende laadtijd</span><b>${remainingText}</b></div>
+                      <div class="data-row"><ha-icon icon="mdi:map-marker-distance" style="color:#41d166"></ha-icon><span>Actieradius</span><b>${rangeText}</b></div>
+                      <div class="data-row"><ha-icon icon="${locked ? 'mdi:car-door-lock' : 'mdi:car-door-lock-open'}" style="color:${locked ? '#41d166' : '#ffb41f'}"></ha-icon><span>Vergrendeling</span><b style="color:${locked ? '#41d166' : '#ffb41f'}">${doorText}</b></div>
+                      <div class="data-row"><ha-icon icon="mdi:air-conditioner" style="color:${climateOn ? '#41d166' : '#98a2ad'}"></ha-icon><span>Klimaat</span><b style="color:${climateOn ? '#41d166' : '#c0c7ce'}">${climateText}</b></div>
+                    </div>
                   `;
                 ]]]
             styles:
@@ -275,8 +277,9 @@ views:
             extra_styles: |
               .panel-title{font-size:17px;font-weight:700;letter-spacing:.08em;color:#f6f8fa}
               .panel-subtitle{font-size:12px;letter-spacing:.08em;color:#aeb7c1;margin-top:4px;margin-bottom:14px}
-              .data-row{height:43px;display:grid;grid-template-columns:29px 1fr auto;align-items:center;padding:0 12px;margin-top:8px;border-radius:13px;background:#3a4149;border:1px solid #4b545e;color:#f2f4f7}
-              .data-row ha-icon{--mdc-icon-size:22px}.data-row span{font-size:14px}.data-row b{font-size:13px;font-weight:600;color:#f2f4f7}
+              .status-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}
+              .data-row{min-height:66px;display:grid;grid-template-columns:28px 1fr;grid-template-areas:"icon label" "icon value";align-items:center;padding:8px 11px;border-radius:13px;background:#3a4149;border:1px solid #4b545e;color:#f2f4f7}
+              .data-row ha-icon{grid-area:icon;--mdc-icon-size:22px}.data-row span{grid-area:label;font-size:12px;color:#c8d0d8}.data-row b{grid-area:value;font-size:14px;font-weight:700;color:#f2f4f7}
 
       ##########################################################################
       # BEDIENING
@@ -381,7 +384,7 @@ views:
         column_span: 4
         cards:
           - type: grid
-            columns: 4
+            columns: 3
             square: false
             cards:
               - type: custom:button-card
@@ -431,30 +434,6 @@ views:
                   icon:
                     - width: 28px
                     - color: '#ffb41f'
-                  name:
-                    - color: '#f6f8fa'
-                    - font-size: 14px
-                    - font-weight: 700
-                  label:
-                    - color: '#aeb7c1'
-                    - font-size: 11px
-              - type: custom:button-card
-                entity: sensor.audi_e_tron_sportback_climatisation_state
-                name: Klimaat
-                label: Bekijk status
-                show_label: true
-                icon: mdi:air-conditioner
-                tap_action:
-                  action: more-info
-                styles:
-                  card:
-                    - height: 88px
-                    - border-radius: 20px
-                    - background: '#30363d'
-                    - border: 1px solid rgba(79,157,255,.42)
-                  icon:
-                    - width: 28px
-                    - color: '[[[ return ["on","active","heating","cooling"].includes(String(entity.state).toLowerCase()) ? "#41d166" : "#4f9dff"; ]]]'
                   name:
                     - color: '#f6f8fa'
                     - font-size: 14px
