@@ -77,6 +77,8 @@ views:
                 :host {
                   --ha-card-background: #30363d !important;
                   --card-background-color: #30363d !important;
+                  --ha-card-border-width: 0px !important;
+                  --ha-card-border-color: transparent !important;
                   --primary-text-color: #f6f8fa !important;
                   --secondary-text-color: #aeb7c1 !important;
                 }
@@ -114,15 +116,32 @@ views:
                   const complete = states['select.ev_smart_charging_charge_completion_time']?.state ?? '—';
                   const smartOn = states['switch.ev_smart_charging_smart_charging_activated']?.state === 'on';
                   const current = Number(states['sensor.ev_smart_charging_price']?.state);
-                  const next = Number(states['sensor.nord_pool_nl_volgende_prijs']?.state);
+                  const prices = states['sensor.ev_smart_charging_charging']?.attributes?.raw_two_days || [];
+                  const now = Date.now();
+                  const inTwelveHours = now + (12 * 60 * 60 * 1000);
+                  const lowest = prices
+                    .map((entry) => {
+                      const start = new Date(entry.start).getTime();
+                      const rawValue = Number(entry.value);
+                      const value = Math.abs(rawValue) > 10 ? rawValue / 1000 : rawValue;
+                      return { start, value };
+                    })
+                    .filter(({ start, value }) =>
+                      Number.isFinite(start) && Number.isFinite(value) &&
+                      start >= now && start <= inTwelveHours
+                    )
+                    .sort((a, b) => a.value - b.value)[0];
                   const money = n => Number.isFinite(n) ? `€ ${n.toFixed(5)} / kWh` : 'Niet beschikbaar';
+                  const lowestText = lowest
+                    ? `${money(lowest.value)} · ${new Date(lowest.start).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}`
+                    : 'Niet beschikbaar';
                   return `
                     <div class="panel-title">PLANNING</div>
                     <div class="panel-subtitle">EV SMART CHARGING</div>
                     <div class="data-row"><ha-icon icon="mdi:clock-check-outline" style="color:#4f9dff"></ha-icon><span>Klaar om</span><b>${complete}</b></div>
                     <div class="data-row"><ha-icon icon="mdi:ev-station" style="color:${smartOn ? '#41d166' : '#98a2ad'}"></ha-icon><span>Slim laden</span><b style="color:${smartOn ? '#41d166' : '#c0c7ce'}">${smartOn ? 'Ingeschakeld' : 'Uitgeschakeld'}</b></div>
                     <div class="data-row"><ha-icon icon="mdi:currency-eur" style="color:#41d166"></ha-icon><span>Huidige prijs</span><b>${money(current)}</b></div>
-                    <div class="data-row"><ha-icon icon="mdi:clock-fast" style="color:#4f9dff"></ha-icon><span>Volgende prijs</span><b>${money(next)}</b></div>
+                    <div class="data-row"><ha-icon icon="mdi:chart-line-variant" style="color:#ffb41f"></ha-icon><span>Laagste prijs (12u)</span><b>${lowestText}</b></div>
                   `;
                 ]]]
             styles:
@@ -392,7 +411,7 @@ views:
         column_span: 4
         cards:
           - type: grid
-            columns: 3
+            columns: 4
             square: false
             cards:
               - type: custom:button-card
@@ -450,6 +469,40 @@ views:
                     - color: '#aeb7c1'
                     - font-size: 11px
               - type: custom:button-card
+                entity: sensor.audi_e_tron_sportback_climatisation_state
+                name: Klimaat
+                label: Tik starten · houd stoppen
+                show_label: true
+                icon: mdi:air-conditioner
+                tap_action:
+                  action: call-service
+                  service: audiconnect.start_climate_control
+                  service_data:
+                    device_id: 513dbd1f6ae38b43c0bde4cc5f04aa2f
+                    temp_c: 21
+                hold_action:
+                  action: call-service
+                  service: audiconnect.execute_vehicle_action
+                  service_data:
+                    device_id: 513dbd1f6ae38b43c0bde4cc5f04aa2f
+                    action: stop_climatisation
+                styles:
+                  card:
+                    - height: 88px
+                    - border-radius: 20px
+                    - background: '#30363d'
+                    - border: 1px solid rgba(79,157,255,.42)
+                  icon:
+                    - width: 28px
+                    - color: '[[[ return ["on","active","heating","cooling","auxiliary","aan","actief"].includes(String(entity.state).toLowerCase()) ? "#41d166" : "#4f9dff"; ]]]'
+                  name:
+                    - color: '#f6f8fa'
+                    - font-size: 14px
+                    - font-weight: 700
+                  label:
+                    - color: '#aeb7c1'
+                    - font-size: 11px
+              - type: custom:button-card
                 name: Verversen
                 label: Audi Connect
                 show_label: true
@@ -483,11 +536,12 @@ views:
           - type: custom:apexcharts-card
             graph_span: 24h
             span:
-              start: day
+              start: hour
+              offset: -12h
             now:
               show: true
               label: Nu
-              color: '#45b7ff'
+              color: '#ffb41f'
             header:
               show: false
             apex_config:
@@ -538,7 +592,11 @@ views:
                   opacityFrom: 0.32
                   opacityTo: 0.03
               markers:
-                size: 0
+                size:
+                  - 0
+                  - 8
+                strokeWidth: 3
+                strokeColors: '#30363d'
               legend:
                 show: false
               tooltip:
@@ -569,6 +627,20 @@ views:
                     .filter(([start, value]) =>
                       Number.isFinite(start) && Number.isFinite(value)
                     );
+              - entity: sensor.ev_smart_charging_price
+                name: Huidige prijs
+                unit: ' €/kWh'
+                type: line
+                color: '#ffb41f'
+                float_precision: 5
+                stroke_width: 0
+                extend_to: false
+                show:
+                  in_header: false
+                  legend_value: false
+                data_generator: |
+                  const value = Number(entity.state);
+                  return Number.isFinite(value) ? [[Date.now(), value]] : [];
             card_mod:
               style: |
                 :host {
@@ -576,6 +648,8 @@ views:
                   background: #30363d !important;
                   --ha-card-background: #30363d !important;
                   --card-background-color: #30363d !important;
+                  --ha-card-border-width: 0px !important;
+                  --ha-card-border-color: transparent !important;
                   --primary-text-color: #f6f8fa !important;
                   --secondary-text-color: #aeb7c1 !important;
                 }
@@ -586,11 +660,14 @@ views:
                   --card-background-color: #30363d !important;
                   color: #f6f8fa !important;
                   border-radius: 24px;
-                  border: 1px solid #424a53;
+                  border: none !important;
+                  outline: none !important;
                   box-shadow: 0 12px 28px rgba(0,0,0,.22);
                   overflow: hidden;
                 }
                 .apexcharts-canvas,
                 .apexcharts-svg {
                   background: #30363d !important;
+                  border: none !important;
+                  outline: none !important;
                 }
