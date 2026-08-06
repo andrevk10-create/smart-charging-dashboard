@@ -24,7 +24,13 @@ views:
                 [[[
                   const soc = Math.max(0, Math.min(100, Number(entity.state) || 0));
                   const target = states['sensor.audi_e_tron_sportback_target_state_of_charge']?.state ?? '—';
-                  const raw = states['sensor.ev_smart_charging_status']?.state ?? 'unknown';
+                  const smartRaw = states['sensor.ev_smart_charging_status']?.state ?? 'unknown';
+                  const easeeRaw = states['sensor.links_status']?.state ?? 'unknown';
+                  const raw = easeeRaw === 'charging' ? 'charging'
+                    : easeeRaw === 'completed' ? 'charging_completed'
+                    : easeeRaw === 'error' ? 'error'
+                    : smartRaw;
+                  const heroTitle = easeeRaw === 'charging' ? 'Nu laden' : 'Slim laden';
                   const labels = {
                     charging: 'Bezig met laden',
                     waiting_for_charging_to_begin: 'Wachten op laadmoment',
@@ -39,7 +45,7 @@ views:
                     <div class="hero-head">
                       <div>
                         <div class="eyebrow">AUDI E-TRON</div>
-                        <div class="hero-title">Slim laden</div>
+                        <div class="hero-title">${heroTitle}</div>
                       </div>
                       <ha-icon icon="mdi:car-electric" class="car-icon"></ha-icon>
                     </div>
